@@ -4,8 +4,7 @@ import argparse
 import imp
 import os
 
-import AlfonsIoT
-import yaml
+import AlfonsIoT as iot
 
 log = False
 
@@ -17,9 +16,11 @@ def thread(options):
 	
 	while True:
 		data = getattr(script, function)()
-		AlfonsIoT.mqtt.publish(topic, payload=data, qos=1, retain=retain)
-
-		if log: print("Published %s to %s" % (data, topic))
+		if data is not None:
+			iot.mqtt.publish(topic, payload=data, qos=1, retain=retain)
+			if log: print("Published %s to %s" % (data, topic))
+		else:
+			if log: print("Didn't publish to %s because data was None" % topic)
 		
 		time.sleep(timeout)
 	
@@ -27,7 +28,7 @@ def thread(options):
 def onConnect(*args):
 	print("Connected")
 
-	for t in config["topics"]:
+	for t in iot.getConfig("topics"):
 		if not "function" in t or not "topic" in t:
 			print("A sensor is missing a necessary field")
 			continue
@@ -45,12 +46,10 @@ def run():
 	log = args.print
 
 	configPath = os.path.abspath(args.config_file)
-	config = {}
 
-	with open(configPath) as f:
-		config = yaml.load(f)
+	iot.setup(configPath)
 
-	scriptPath = os.path.abspath(os.path.dirname(configPath) + "/" + config["script"])
+	scriptPath = os.path.abspath(os.path.dirname(configPath) + "/" + iot.getConfig("script"))
 	script = imp.load_source("Alfons Sensor", scriptPath)
 
-	AlfonsIoT.connect(on_connect=onConnect, block=True)
+	iot.connect(on_connect=onConnect, block=True)

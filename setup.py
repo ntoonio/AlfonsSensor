@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="AlfonsSensor",
-    version="0.0.1",
+    version="0.0.3",
     author="Anton Lindroth",
     author_email="ntoonio@gmail.com",
     description="A package for sensors to interact with Alfons",
