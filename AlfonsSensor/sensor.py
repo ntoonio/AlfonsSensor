@@ -13,14 +13,17 @@ def thread(options):
 	topic = options["topic"]
 	retain = options["retain"] if "retain" in options else False
 	timeout = options["timeout"] if "timeout" in options else 5
-	
+	lastValue = None
+
 	while True:
 		data = getattr(script, function)()
-		if data is not None:
+		if data is None:
+			if log: print("Didn't publish to %s because data was None" % topic)
+		elif data == lastValue:
+			if log: print("Didn't publish %s to %s because there had been no update" % (data, topic))
+		else:
 			iot.mqtt.publish(topic, payload=data, qos=1, retain=retain)
 			if log: print("Published %s to %s" % (data, topic))
-		else:
-			if log: print("Didn't publish to %s because data was None" % topic)
 		
 		time.sleep(timeout)
 	
