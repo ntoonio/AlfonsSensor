@@ -22,6 +22,7 @@ def thread(options):
 		elif data == lastValue:
 			if log: print("Didn't publish %s to %s because there had been no update" % (data, topic))
 		else:
+			lastValue = data
 			iot.mqtt.publish(topic, payload=data, qos=1, retain=retain)
 			if log: print("Published %s to %s" % (data, topic))
 		
