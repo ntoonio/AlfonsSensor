@@ -27,7 +27,6 @@ def thread(options):
 			if log: print("Published %s to %s" % (data, topic))
 		
 		time.sleep(timeout)
-	
 
 def onConnect(*args):
 	print("Connected")
